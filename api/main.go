@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"log"
+	"mborgnolo/companyservice/internal/data"
 	"net/http"
 	"os"
 	"time"
@@ -26,8 +28,14 @@ type config struct {
 }
 
 type application struct {
-	config config
-	logger *log.Logger
+	config  config
+	logger  *log.Logger
+	company interface {
+		GetCompany(id uuid.UUID) (*data.Company, error)
+		InsertCompany(company *data.Company) error
+		DeleteCompany(id uuid.UUID) error
+		UpdateCompany(company *data.Company) error
+	}
 }
 
 func main() {
@@ -49,8 +57,9 @@ func main() {
 	defer db.Close()
 	logger.Printf("database connection pool established")
 	app := &application{
-		config: cfg,
-		logger: logger,
+		config:  cfg,
+		logger:  logger,
+		company: data.NewCompanyModel(db),
 	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
