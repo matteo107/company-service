@@ -15,7 +15,9 @@ This is a simple service that provides a REST API for managing companies.
 ## Database
 
 Postgres is used as the database for this service.
-
+Extension uuid-ossp is used for generating UUIDs.
+https://github.com/golang-migrate/migrate is used for database migrations.
+migrations scripts are located in the ./migrations folder.
 
 ## Additional points
 
