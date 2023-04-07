@@ -27,7 +27,10 @@ func (t *CompanyModel) CreateCompany(company *data.Company) (uuid.UUID, error) {
 }
 
 func (t *CompanyModel) DeleteCompany(id uuid.UUID) error {
-	return nil
+	if id.String() == mockCompany.ID.String() {
+		return nil
+	}
+	return data.ErrRecordNotFound
 }
 
 func (t *CompanyModel) UpdateCompany(company *data.Company) error {

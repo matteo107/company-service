@@ -67,3 +67,22 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 		app.serverErrorResponse(writer, request, err)
 	}
 }
+
+func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request *http.Request) {
+	id, err := app.readIDParam(request)
+	if err != nil {
+		app.serverErrorResponse(writer, request, err)
+		return
+	}
+	err = app.company.DeleteCompany(id)
+	if err != nil {
+		switch err {
+		case data.ErrRecordNotFound:
+			app.notFoundResponse(writer, request)
+		default:
+			app.serverErrorResponse(writer, request, err)
+		}
+		return
+	}
+	err = app.writeJSON(writer, http.StatusOK, envelope{"id": id}, nil)
+}

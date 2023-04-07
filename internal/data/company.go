@@ -84,6 +84,11 @@ func (m *CompanyModel) CreateCompany(company *Company) (uuid.UUID, error) {
 }
 
 func (m *CompanyModel) DeleteCompany(id uuid.UUID) error {
+	query := `DELETE FROM company WHERE id = $1`
+	_, err := m.DB.Exec(query, id)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
