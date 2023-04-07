@@ -25,6 +25,9 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  string
 	}
+	jwt struct {
+		secret string
+	}
 }
 
 type application struct {
@@ -47,7 +50,7 @@ func main() {
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
-
+	flag.StringVar(&cfg.jwt.secret, "jwt-secret", os.Getenv("JWT_SECRET"), "JWT secret")
 	flag.Parse()
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
 	db, err := openDB(cfg)
@@ -74,6 +77,7 @@ func main() {
 		"env":  cfg.env,
 	})
 	err = srv.ListenAndServe()
+	//err = srv.ListenAndServeTLS("./certs/cert.pem", "./certs/key.pem")
 
 	logger.Fatal(err, nil)
 }

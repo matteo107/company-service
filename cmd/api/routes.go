@@ -10,5 +10,9 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/company", app.CreateCompanyHandler)
 	router.HandlerFunc(http.MethodPatch, "/v1/company/:id", app.UpdateCompanyHandler)
 	router.HandlerFunc(http.MethodDelete, "/v1/company/:id", app.DeleteCompanyHandler)
-	return router
+	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
+	if app.config.env == "development" {
+		return router
+	}
+	return app.authenticate(router)
 }
