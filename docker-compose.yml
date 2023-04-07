@@ -9,7 +9,7 @@ services:
       - "4000:4000"
     volumes:
       - .:/usr/src/app
-    command: go run ./api/
+    command: ["/bin/bash", "-c", "/usr/local/bin/companyservice"]
     depends_on:
       - db
   db:
