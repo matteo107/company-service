@@ -39,6 +39,7 @@ type application struct {
 		DeleteCompany(id uuid.UUID) error
 		UpdateCompany(company *data.Company) error
 	}
+	eventChan chan data.EventRecord
 }
 
 func main() {
@@ -60,9 +61,10 @@ func main() {
 	defer db.Close()
 	logger.Printf("database connection pool established")
 	app := &application{
-		config:  cfg,
-		logger:  logger,
-		company: data.NewCompanyModel(db),
+		config:    cfg,
+		logger:    logger,
+		company:   data.NewCompanyModel(db),
+		eventChan: make(chan data.EventRecord, 100),
 	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
@@ -76,6 +78,7 @@ func main() {
 		"addr": srv.Addr,
 		"env":  cfg.env,
 	})
+	go app.processEvents()
 	err = srv.ListenAndServe()
 	//err = srv.ListenAndServeTLS("./certs/cert.pem", "./certs/key.pem")
 
@@ -101,4 +104,22 @@ func openDB(cfg config) (*sql.DB, error) {
 		return nil, err
 	}
 	return db, nil
+}
+
+func (app *application) processEvents() {
+	var t string
+	for {
+		select {
+		case event := <-app.eventChan:
+			switch event.Type {
+			case data.CompanyCreated:
+				t = "created"
+			case data.CompanyDeleted:
+				t = "deleted"
+			case data.CompanyUpdated:
+				t = "updated"
+			}
+			app.logger.Printf("company with id:[%s] %s at %s", event.ID, t, event.TimeStamp.Format(time.RFC3339))
+		}
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"mborgnolo/companyservice/internal/data"
 	"mborgnolo/companyservice/internal/validator"
 	"net/http"
+	"time"
 )
 
 func (app *application) GetCompanyHandler(writer http.ResponseWriter, request *http.Request) {
@@ -66,6 +67,11 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 	if err != nil {
 		app.serverErrorResponse(writer, request, err)
 	}
+	app.eventChan <- data.EventRecord{
+		ID:        UUID,
+		Type:      data.CompanyCreated,
+		TimeStamp: time.Now().UTC(),
+	}
 }
 
 func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request *http.Request) {
@@ -85,6 +91,11 @@ func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request
 		return
 	}
 	err = app.writeJSON(writer, http.StatusOK, envelope{"id": id}, nil)
+	app.eventChan <- data.EventRecord{
+		ID:        id,
+		Type:      data.CompanyDeleted,
+		TimeStamp: time.Now().UTC(),
+	}
 }
 
 func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request *http.Request) {
@@ -146,5 +157,10 @@ func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request
 	err = app.writeJSON(writer, http.StatusOK, envelope{"company": company}, nil)
 	if err != nil {
 		app.serverErrorResponse(writer, request, err)
+	}
+	app.eventChan <- data.EventRecord{
+		ID:        id,
+		Type:      data.CompanyUpdated,
+		TimeStamp: time.Now().UTC(),
 	}
 }
