@@ -1,7 +1,6 @@
 package mocks
 
 import (
-	"database/sql"
 	"github.com/google/uuid"
 	"mborgnolo/companyservice/internal/data"
 )
@@ -9,8 +8,7 @@ import (
 var mockCompany = &data.Company{
 	ID:          uuid.MustParse("dc152cf7-cc4b-4555-8d4c-1878e5b9262c"),
 	Name:        "Test Company",
-	Description: sql.NullString{string("Test Company Description"), true},
-	Employees:   1,
+	Description: data.CompanyDescription{"Test Company Description", true},
 	Registered:  true,
 	Type:        "Corporate",
 }

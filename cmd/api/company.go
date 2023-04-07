@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"github.com/google/uuid"
 	"mborgnolo/companyservice/internal/data"
 	"mborgnolo/companyservice/internal/validator"
@@ -31,13 +30,13 @@ func (app *application) GetCompanyHandler(writer http.ResponseWriter, request *h
 }
 
 func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request *http.Request) {
-	var uuid uuid.UUID
+	var UUID uuid.UUID
 	var input struct {
-		Name        string         `json:"name"`
-		Description sql.NullString `json:"description"`
-		Employees   int            `json:"employees"`
-		Registered  bool           `json:"registered"`
-		Type        string         `json:"type"`
+		Name        string                  `json:"name"`
+		Description data.CompanyDescription `json:"description"`
+		Employees   int                     `json:"employees"`
+		Registered  bool                    `json:"registered"`
+		Type        string                  `json:"type"`
 	}
 	err := app.readJSON(request, &input)
 	if err != nil {
@@ -58,12 +57,12 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 		app.failedValidationResponse(writer, request, v.Errors)
 		return
 	}
-	uuid, err = app.company.CreateCompany(company)
+	UUID, err = app.company.CreateCompany(company)
 	if err != nil {
 		app.serverErrorResponse(writer, request, err)
 		return
 	}
-	err = app.writeJSON(writer, http.StatusCreated, envelope{"id": uuid}, nil)
+	err = app.writeJSON(writer, http.StatusCreated, envelope{"id": UUID}, nil)
 	if err != nil {
 		app.serverErrorResponse(writer, request, err)
 	}

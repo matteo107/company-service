@@ -15,13 +15,37 @@ func (cd *CompanyDescription) MarshalJSON() ([]byte, error) {
 	return []byte(cd.String), nil
 }
 
+func (cd *CompanyDescription) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		cd.Valid = false
+		return nil
+	}
+	cd.Valid = true
+	cd.String = string(data)
+	return nil
+}
+
+func (cd *CompanyDescription) Scan(src interface{}) error {
+	switch v := src.(type) {
+	case string:
+		cd.String = v
+		cd.Valid = true
+	case []byte:
+		cd.String = string(v)
+		cd.Valid = true
+	case nil:
+		cd.Valid = false
+	}
+	return nil
+}
+
 type Company struct {
-	ID          uuid.UUID      `json:"id"`
-	Name        string         `json:"name"`
-	Description sql.NullString `json:"description"`
-	Employees   int            `json:"employees"`
-	Registered  bool           `json:"registered"`
-	Type        string         `json:"type"`
+	ID          uuid.UUID          `json:"id"`
+	Name        string             `json:"name"`
+	Description CompanyDescription `json:"description"`
+	Employees   int                `json:"employees"`
+	Registered  bool               `json:"registered"`
+	Type        string             `json:"type"`
 }
 
 func ValidateCompany(v *validator.Validator, company *Company) {
@@ -52,7 +76,7 @@ func (m *CompanyModel) GetCompany(id uuid.UUID) (*Company, error) {
 func (m *CompanyModel) CreateCompany(company *Company) (uuid.UUID, error) {
 	newUUID := uuid.New()
 	query := `INSERT INTO company ("id", "name", "description", "employees", "registered", "type") VALUES ($1, $2, $3, $4, $5, $6)`
-	_, err := m.DB.Exec(query, newUUID, company.Name, company.Description, company.Employees, company.Registered, company.Type)
+	_, err := m.DB.Exec(query, newUUID, company.Name, company.Description.String, company.Employees, company.Registered, company.Type)
 	if err != nil {
 		return uuid.Nil, err
 	}
