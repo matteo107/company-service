@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/google/uuid"
 	"mborgnolo/companyservice/internal/data"
+	"mborgnolo/companyservice/internal/validator"
 	"net/http"
 )
 
@@ -49,6 +50,13 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 		Employees:   input.Employees,
 		Registered:  input.Registered,
 		Type:        input.Type,
+	}
+
+	v := validator.New()
+
+	if data.ValidateCompany(v, company); !v.IsValid() {
+		app.failedValidationResponse(writer, request, v.Errors)
+		return
 	}
 	uuid, err = app.company.CreateCompany(company)
 	if err != nil {

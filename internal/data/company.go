@@ -3,6 +3,7 @@ package data
 import (
 	"database/sql"
 	"github.com/google/uuid"
+	"mborgnolo/companyservice/internal/validator"
 )
 
 type CompanyDescription sql.NullString
@@ -21,6 +22,13 @@ type Company struct {
 	Employees   int            `json:"employees"`
 	Registered  bool           `json:"registered"`
 	Type        string         `json:"type"`
+}
+
+func ValidateCompany(v *validator.Validator, company *Company) {
+	v.Check(company.Name != "", "name", "is required")
+	v.Check(company.Employees > 0, "employees", "must be greater than zero")
+	v.Check(company.Registered, "registered", "is required")
+	v.Check(company.Type != "", "type", "is required")
 }
 
 type CompanyModel struct {

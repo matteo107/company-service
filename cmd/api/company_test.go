@@ -65,7 +65,7 @@ func TestCreateCompany(t *testing.T) {
 		{"Mandatory data missing",
 			"/v1/company/",
 			bytes.NewReader([]byte(`{"name":"AWS","registered":true,"type":"Corporate"}`)),
-			http.StatusBadRequest,
+			http.StatusUnprocessableEntity,
 			nil,
 		},
 	}
