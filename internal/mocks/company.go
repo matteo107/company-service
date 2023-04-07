@@ -34,5 +34,8 @@ func (t *CompanyModel) DeleteCompany(id uuid.UUID) error {
 }
 
 func (t *CompanyModel) UpdateCompany(company *data.Company) error {
-	return nil
+	if company.ID.String() == mockCompany.ID.String() {
+		return nil
+	}
+	return data.ErrRecordNotFound
 }

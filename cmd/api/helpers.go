@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
+	"log"
 	"net/http"
 )
 
@@ -13,6 +14,11 @@ type envelope map[string]interface{}
 func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
 	js, err := json.Marshal(data)
 	if err != nil {
+		log.Printf("error decoding response: %v", err)
+		if e, ok := err.(*json.SyntaxError); ok {
+			log.Printf("syntax error at byte offset %d", e.Offset)
+		}
+		log.Printf("response: %q", data)
 		return err
 	}
 	js = append(js, '\n')

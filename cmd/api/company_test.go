@@ -131,3 +131,53 @@ func TestDeleteCompany(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateCompany(t *testing.T) {
+	app := newTestApplication(t)
+	ts := httptest.NewServer(app.routes())
+	defer ts.Close()
+
+	tests := []struct {
+		name        string
+		urlPath     string
+		bodyRequest io.Reader
+		wantCode    int
+		wantBody    []byte
+	}{
+		{"Valid ID",
+			"/v1/company/dc152cf7-cc4b-4555-8d4c-1878e5b9262c",
+			bytes.NewReader([]byte(`{"name":"Microsoft","employees":1000,"registered":true,"type":"Corporate"}`)),
+			http.StatusOK,
+			[]byte("Microsoft")},
+		{"Mandatory data missing",
+			"/v1/company/dc152cf7-cc4b-4555-8d4c-1878e5b9262c",
+			bytes.NewReader([]byte(`{"name":"","registered":true,"type":"Corporate"}`)),
+			http.StatusUnprocessableEntity,
+			nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := http.NewRequest(http.MethodPatch, ts.URL+tt.urlPath, tt.bodyRequest)
+			if err != nil {
+				t.Fatal(err)
+			}
+			rs, err := ts.Client().Do(req)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer rs.Body.Close()
+			body, err := io.ReadAll(rs.Body)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if rs.StatusCode != tt.wantCode {
+				t.Errorf("want %d; got %d", tt.wantCode, rs.StatusCode)
+			}
+			if !bytes.Contains(body, tt.wantBody) {
+				t.Errorf("want body to contain %q; got %q", tt.wantBody, body)
+			}
+		})
+	}
+}

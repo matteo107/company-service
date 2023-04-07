@@ -12,7 +12,7 @@ func (cd *CompanyDescription) MarshalJSON() ([]byte, error) {
 	if !cd.Valid {
 		return []byte("null"), nil
 	}
-	return []byte(cd.String), nil
+	return []byte(`"` + cd.String + `"`), nil
 }
 
 func (cd *CompanyDescription) UnmarshalJSON(data []byte) error {
@@ -21,7 +21,8 @@ func (cd *CompanyDescription) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	cd.Valid = true
-	cd.String = string(data)
+	tmp := string(data)
+	cd.String = tmp[1 : len(tmp)-1]
 	return nil
 }
 
@@ -50,6 +51,7 @@ type Company struct {
 
 func ValidateCompany(v *validator.Validator, company *Company) {
 	v.Check(company.Name != "", "name", "is required")
+	v.Check(len(company.Description.String) < 3000, "description", "must be less than 3000 characters")
 	v.Check(company.Employees > 0, "employees", "must be greater than zero")
 	v.Check(company.Registered, "registered", "is required")
 	v.Check(company.Type != "", "type", "is required")
@@ -93,5 +95,10 @@ func (m *CompanyModel) DeleteCompany(id uuid.UUID) error {
 }
 
 func (m *CompanyModel) UpdateCompany(company *Company) error {
+	query := `UPDATE company SET "name" = $1, "description" = $2, "employees" = $3, "registered" = $4, "type" = $5 WHERE id = $6`
+	_, err := m.DB.Exec(query, company.Name, company.Description.String, company.Employees, company.Registered, company.Type, company.ID)
+	if err != nil {
+		return err
+	}
 	return nil
 }
