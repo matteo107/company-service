@@ -10,7 +10,7 @@ import (
 func newTestApplication(t *testing.T) *application {
 
 	return &application{
-		config:  config{},
+		config:  config{env: "development"},
 		logger:  log.New(os.Stdout, "", log.Ldate|log.Ltime),
 		company: &mocks.CompanyModel{},
 	}

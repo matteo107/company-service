@@ -59,7 +59,7 @@ func TestCreateCompany(t *testing.T) {
 	}{
 		{"Valid ID",
 			"/v1/company/",
-			bytes.NewReader([]byte(`{"name":"AWS","employees":1000,"registered":true,"type":"Corporate"}`)),
+			bytes.NewReader([]byte(`{"name":"AWS","employees":1000,"registered":true,"type":"Corporations"}`)),
 			http.StatusCreated,
 			[]byte("id")},
 		{"Mandatory data missing",
@@ -146,7 +146,7 @@ func TestUpdateCompany(t *testing.T) {
 	}{
 		{"Valid ID",
 			"/v1/company/dc152cf7-cc4b-4555-8d4c-1878e5b9262c",
-			bytes.NewReader([]byte(`{"name":"Microsoft","employees":1000,"registered":true,"type":"Corporate"}`)),
+			bytes.NewReader([]byte(`{"name":"Microsoft","employees":1000,"registered":true,"type":"Corporations"}`)),
 			http.StatusOK,
 			[]byte("Microsoft")},
 		{"Mandatory data missing",

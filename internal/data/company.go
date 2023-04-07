@@ -55,6 +55,17 @@ func ValidateCompany(v *validator.Validator, company *Company) {
 	v.Check(company.Employees > 0, "employees", "must be greater than zero")
 	v.Check(company.Registered, "registered", "is required")
 	v.Check(company.Type != "", "type", "is required")
+	v.Check(validateCompanyType(company.Type), "type", "must be one of: Corporations, NonProfit, Cooperative , Sole Proprietorship")
+}
+
+func validateCompanyType(t string) bool {
+	validTypes := []string{"Corporations", "NonProfit", "Cooperative", "Sole Proprietorship"}
+	for _, v := range validTypes {
+		if v == t {
+			return true
+		}
+	}
+	return false
 }
 
 type CompanyModel struct {
