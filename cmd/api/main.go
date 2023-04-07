@@ -32,7 +32,7 @@ type application struct {
 	logger  *log.Logger
 	company interface {
 		GetCompany(id uuid.UUID) (*data.Company, error)
-		InsertCompany(company *data.Company) error
+		CreateCompany(company *data.Company) (uuid.UUID, error)
 		DeleteCompany(id uuid.UUID) error
 		UpdateCompany(company *data.Company) error
 	}
