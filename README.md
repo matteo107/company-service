@@ -20,7 +20,7 @@ Makefile can be used for building and running the service.
 
 ## API
 
-The below table shows the API endpoints and their corresponding methods.
+The below table shows the API endpoints and their corresponding methods:
 
 | Method | URL Pattern     | Action                                          |
 |--------| --------------- |-------------------------------------------------|
@@ -42,7 +42,7 @@ The migration scripts are located in the /migrations folder.
 
 ## Database Schema
 
-Below the database schema is shown.
+Below the database schema is shown:
 
 ```mermaid
 erDiagram   
@@ -95,7 +95,7 @@ To create a JWT token, use the following request body:
 
 ## Requirements implementation
 
-- [x] On each mutating operation, an event should be produced.
+- [x] On each mutating operation, an event should be produced
 - [x] Dockerize the application to be ready for building the production docker image
 - [x] Use docker for setting up the external services such as the database
 - [x] REST is suggested, but GRPC is also an option
@@ -111,9 +111,9 @@ To create a JWT token, use the following request body:
 Integration tests are located in the /internal/data folder. 
 Scripts are in the internal/data/testdata folder.
 
-Scripts do not take care of creating the database, only tables
+Scripts do not take care of creating the database, only tables.
 
-To run the integration tests, execute the following commands to preapre the database:
+To run the integration tests, execute the following commands to prepare the database:
 ```bash
 CREATE DATABASE test_companysrv;  
 CREATE ROLE test_companysrv WITH LOGIN PASSWORD 'test_companysrv';
