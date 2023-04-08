@@ -63,12 +63,24 @@ Clone the repository
 git clone https://github.com/matteo107/company-service.git
 ```
 
-Have docker installed and running.
+Create a .env file in the root folder of the project and add the following environment variables:
+```
+CMPSRV_ENV=production
+CMPSRV_PORT=4000
+DB_USER=companysrv
+DB_PASSWORD=companysrv
+DB_NAME=companysrv
+DB_DSN=postgres://companysrv:companysrv@db:5432/companysrv?sslmode=disable
+JWT_SECRET=eoUeeToh2eianjgvuliJ45oM5xfBldekngei3aeh2aapoi6wEin013gooha60aoe
+```
+
+
+Have docker installed and running, execute the below commands:
 
 ```bash
 make build
 ```
-and then
+and then to run the services:
 ```bash
 make run
 ```

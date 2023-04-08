@@ -15,10 +15,10 @@ import (
 	"time"
 )
 
-const version = "0.0.1"
+const version = "1.0.0"
 
 type config struct {
-	port int
+	port string
 	env  string
 	db   struct {
 		dsn          string
@@ -46,8 +46,8 @@ type application struct {
 
 func main() {
 	var cfg config
-	flag.IntVar(&cfg.port, "port", 4000, "API server port")
-	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
+	flag.StringVar(&cfg.port, "port", os.Getenv("CMPSRV_PORT"), "API server port")
+	flag.StringVar(&cfg.env, "env", os.Getenv("CMPSRV_ENV"), "Environment (development|testing|production)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DB_DSN"), "PostgreSQL DSN")
 
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
@@ -70,7 +70,7 @@ func main() {
 		KafkaClient: initKafkaClient(),
 	}
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.port),
+		Addr:         fmt.Sprintf(":%s", cfg.port),
 		Handler:      app.routes(),
 		ErrorLog:     nil,
 		IdleTimeout:  time.Minute,
@@ -83,7 +83,6 @@ func main() {
 	})
 	go app.processEvents()
 	err = srv.ListenAndServe()
-	// err = srv.ListenAndServeTLS("./certs/cert.pem", "./certs/key.pem")
 
 	logger.Fatal(err, nil)
 }
