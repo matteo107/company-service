@@ -10,7 +10,10 @@ GO_FLAGS=-v
 .PHONY: all build clean
 
 test:
-	go test -v ./...
+	go test -v -short ./...
+
+test_integration:
+	go test -v -tags=integration ./internal/data/...
 
 lint:
 	golangci-lint run

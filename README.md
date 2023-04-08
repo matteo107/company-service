@@ -101,6 +101,28 @@ To create a JWT token, use the following request body:
 - [x] REST is suggested, but GRPC is also an option
 - [x] JWT for authentication
 - [x] Kafka for events
-- [ ] Integration tests are highly appreciated
+- [x] Integration tests are highly appreciated
 - [x] Linter
 - [x] Configuration file
+
+
+## Integration testing
+
+Integration tests are located in the /internal/data folder. 
+Scripts are in the internal/data/testdata folder.
+
+Scripts do not take care of creating the database, only tables
+
+To run the integration tests, execute the following commands to preapre the database:
+```bash
+CREATE DATABASE test_companysrv;  
+CREATE ROLE test_companysrv WITH LOGIN PASSWORD 'test_companysrv';
+GRANT ALL PRIVILEGES ON DATABASE test_companysrv TO test_companysrv;  
+ALTER DATABASE test_companysrv OWNER TO test_companysrv;  
+GRANT ALL ON SCHEMA public TO test_companysrv;  
+```
+
+and then run the tests:
+```bash
+make test_integration
+```
