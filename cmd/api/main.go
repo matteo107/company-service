@@ -12,6 +12,8 @@ import (
 	"mborgnolo/companyservice/internal/data"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -77,6 +79,22 @@ func main() {
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
+
+	shutdownError := make(chan error)
+	go func() {
+		quit := make(chan os.Signal, 1)
+		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+		s := <-quit
+
+		logger.Printf("shutting down server: %s:%s", "signal", s.String())
+
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		shutdownError <- srv.Shutdown(ctx)
+		close(app.eventChan)
+	}()
+
 	logger.Println("starting server", map[string]string{
 		"addr": srv.Addr,
 		"env":  cfg.env,
@@ -84,7 +102,7 @@ func main() {
 	go app.processEvents()
 	err = srv.ListenAndServe()
 
-	logger.Fatal(err, nil)
+	logger.Fatal(err)
 }
 
 func openDB(cfg config) (*sql.DB, error) {
