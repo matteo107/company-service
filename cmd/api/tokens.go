@@ -1,41 +1,70 @@
 package main
 
 import (
-	"github.com/pascaldekloe/jwt"
+	"github.com/dgrijalva/jwt-go"
 	"net/http"
 	"time"
 )
 
 // hardcoded for now
-const ClaimSubject = "user@companyservice.io"
+const ClaimSubject = "john@companyservice.io"
 
-func (app *application) createAuthenticationTokenHandler(writer http.ResponseWriter, request *http.Request) {
+type Claims struct {
+	Username string `json:"username"`
+	jwt.StandardClaims
+}
+
+func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	err := app.readJSON(request, &input)
+	err := app.readJSON(r, &input)
 	if err != nil {
-		app.badRequestResponse(writer, request, err)
+		app.badRequestResponse(w, r, err)
 		return
 	}
 
-	var claims jwt.Claims
-
-	claims.Subject = ClaimSubject
-	claims.Issued = jwt.NewNumericTime(time.Now())
-	claims.NotBefore = jwt.NewNumericTime(time.Now())
-	claims.Expires = jwt.NewNumericTime(time.Now().Add(24 * time.Hour))
-	claims.Issuer = "api.companyservice.io"
-	claims.Audiences = []string{"api.companyservice.io"}
-
-	jwtBytes, err := claims.HMACSign(jwt.HS256, []byte(app.config.jwt.secret))
-	if err != nil {
-		app.serverErrorResponse(writer, request, err)
+	// should go to DB and validate user, hardcoded for now
+	if app.validateUser(input.Email, input.Password) {
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	err = app.writeJSON(writer, http.StatusCreated, envelope{"authentication_token": string(jwtBytes)}, nil)
-	if err != nil {
-		app.serverErrorResponse(writer, request, err)
+	// Create JWT token
+	IssuedAt := time.Now()
+	ExpiresAt := IssuedAt.AddDate(0, 0, 1).Unix()
+	NotBefore := IssuedAt.Unix()
+
+	claims := &Claims{
+		Username: input.Email,
+		StandardClaims: jwt.StandardClaims{
+			Audience:  "api.companyservice.io",
+			ExpiresAt: ExpiresAt,
+			Id:        "",
+			IssuedAt:  IssuedAt.Unix(),
+			Issuer:    "api.companyservice.io",
+			NotBefore: NotBefore,
+			Subject:   input.Email,
+		},
 	}
+
+	// Create a new token object with the claims
+	token := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+
+	// Sign the token with the secret
+	//secret := "a secret message"
+	tokenString, err := token.SignedString([]byte(app.config.jwt.secret))
+	if err != nil {
+		return
+	}
+
+	// Send JWT token back to the client
+	err = app.writeJSON(w, http.StatusCreated, envelope{"authentication_token": tokenString}, nil)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+	}
+}
+
+func (app *application) validateUser(username string, password string) bool {
+	return username != "john@companyservice.io" || password != "doe"
 }

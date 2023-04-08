@@ -73,6 +73,14 @@ and then
 make run
 ```
 
+### JWT Authentication
+
+To create a JWT token, use the following request body:
+```
+{"email": "john@companyservice.io", "password": "doe"}
+```
+
+
 ## Requirements implementation
 
 - [x] On each mutating operation, an event should be produced.
