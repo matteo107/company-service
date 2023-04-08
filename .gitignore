@@ -8,7 +8,7 @@
 !README.md
 !LICENSE
 !*.sql
-# !Makefile
+!Makefile
 !Dockerfile
 !docker-compose.yml
 modd.conf
