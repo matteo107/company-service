@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
+	"github.com/twmb/franz-go/pkg/kgo"
 	"log"
 	"mborgnolo/companyservice/internal/data"
 	"net/http"
@@ -39,7 +40,8 @@ type application struct {
 		DeleteCompany(id uuid.UUID) error
 		UpdateCompany(company *data.Company) error
 	}
-	eventChan chan data.EventRecord
+	eventChan   chan data.EventRecord
+	KafkaClient *kgo.Client
 }
 
 func main() {
@@ -61,10 +63,11 @@ func main() {
 	defer db.Close()
 	logger.Printf("database connection pool established")
 	app := &application{
-		config:    cfg,
-		logger:    logger,
-		company:   data.NewCompanyModel(db),
-		eventChan: make(chan data.EventRecord, 100),
+		config:      cfg,
+		logger:      logger,
+		company:     data.NewCompanyModel(db),
+		eventChan:   make(chan data.EventRecord, 100),
+		KafkaClient: initKafkaClient(),
 	}
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
@@ -80,7 +83,7 @@ func main() {
 	})
 	go app.processEvents()
 	err = srv.ListenAndServe()
-	//err = srv.ListenAndServeTLS("./certs/cert.pem", "./certs/key.pem")
+	// err = srv.ListenAndServeTLS("./certs/cert.pem", "./certs/key.pem")
 
 	logger.Fatal(err, nil)
 }
@@ -119,7 +122,29 @@ func (app *application) processEvents() {
 			case data.CompanyUpdated:
 				t = "updated"
 			}
-			app.logger.Printf("company with id:[%s] %s at %s", event.ID, t, event.TimeStamp.Format(time.RFC3339))
+			message := fmt.Sprintf("company with id:[%s] %s at %s", event.ID, t, event.TimeStamp.Format(time.RFC3339))
+			app.logger.Println(message)
+			record := &kgo.Record{Topic: "companyservice", Value: []byte(message)}
+			ctx := context.Background()
+
+			app.KafkaClient.Produce(ctx, record, func(_ *kgo.Record, err error) {
+				if err != nil {
+					fmt.Printf("record had a produce error: %v\n", err)
+				}
+
+			})
 		}
 	}
+}
+
+func initKafkaClient() *kgo.Client {
+	seeds := []string{"kafka:9092"}
+	cl, err := kgo.NewClient(
+		kgo.SeedBrokers(seeds...),
+		kgo.ConsumeTopics("companyservice"),
+	)
+	if err != nil {
+		panic(err)
+	}
+	return cl
 }
