@@ -8,12 +8,7 @@ import (
 
 var (
 	ErrRecordNotFound = errors.New("record not found")
-	ErrEditConflict   = errors.New("edit conflict")
 )
-
-type Models struct {
-	Trades CompanyModel
-}
 
 type NullString sql.NullString
 
@@ -24,6 +19,7 @@ func (x *NullString) MarshalJSON() ([]byte, error) {
 	return json.Marshal(x.String)
 }
 
+// NewCompanyModel returns a new CompanyModel.
 func NewCompanyModel(db *sql.DB) *CompanyModel {
 	return &CompanyModel{DB: db}
 }

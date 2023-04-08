@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// EventRecord is a record of an event that occurred in the system.
 type EventRecord struct {
 	ID        uuid.UUID `json:"ID"`
 	Type      EventType `json:"Type"`

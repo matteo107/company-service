@@ -6,6 +6,12 @@ import (
 	"mborgnolo/companyservice/internal/validator"
 )
 
+// CompanyDescription is a custom type that wraps a string and implements the
+// sql.Scanner interface. This allows us to store a NULL
+// value in the database if the user doesn't provide a description for the
+// company. It also implements the json.Marshaler and json.Unmarshaler interfaces
+// so that we can control how the value is encoded and decoded when it is
+// sent to and received from the client.
 type CompanyDescription sql.NullString
 
 func (cd *CompanyDescription) MarshalJSON() ([]byte, error) {
@@ -40,6 +46,7 @@ func (cd *CompanyDescription) Scan(src interface{}) error {
 	return nil
 }
 
+// Company represents a company in the companyservice application.
 type Company struct {
 	ID          uuid.UUID          `json:"id"`
 	Name        string             `json:"name"`
@@ -49,6 +56,7 @@ type Company struct {
 	Type        string             `json:"type"`
 }
 
+// ValidateCompany runs validation checks on the company data.
 func ValidateCompany(v *validator.Validator, company *Company) {
 	v.Check(company.Name != "", "name", "is required")
 	v.Check(len(company.Description.String) < 3000, "description", "must be less than 3000 characters")
@@ -68,10 +76,12 @@ func validateCompanyType(t string) bool {
 	return false
 }
 
+// CompanyModel wraps the sql.DB connection pool.
 type CompanyModel struct {
 	DB *sql.DB
 }
 
+// GetCompany returns a single company based on the ID provided.
 func (m *CompanyModel) GetCompany(id uuid.UUID) (*Company, error) {
 	query := `SELECT "id", "name", "description", "employees", "registered", "type" FROM company WHERE id = $1`
 	row := m.DB.QueryRow(query, id)
@@ -86,6 +96,7 @@ func (m *CompanyModel) GetCompany(id uuid.UUID) (*Company, error) {
 	return company, nil
 }
 
+// CreateCompany inserts a new company record in the database.
 func (m *CompanyModel) CreateCompany(company *Company) (uuid.UUID, error) {
 	newUUID := uuid.New()
 	query := `INSERT INTO company ("id", "name", "description", "employees", "registered", "type") VALUES ($1, $2, $3, $4, $5, $6)`
@@ -96,6 +107,7 @@ func (m *CompanyModel) CreateCompany(company *Company) (uuid.UUID, error) {
 	return newUUID, nil
 }
 
+// DeleteCompany deletes a company record from the database.
 func (m *CompanyModel) DeleteCompany(id uuid.UUID) error {
 	query := `DELETE FROM company WHERE id = $1`
 	_, err := m.DB.Exec(query, id)
@@ -105,6 +117,7 @@ func (m *CompanyModel) DeleteCompany(id uuid.UUID) error {
 	return nil
 }
 
+// UpdateCompany updates a company record in the database.
 func (m *CompanyModel) UpdateCompany(company *Company) error {
 	query := `UPDATE company SET "name" = $1, "description" = $2, "employees" = $3, "registered" = $4, "type" = $5 WHERE id = $6`
 	_, err := m.DB.Exec(query, company.Name, company.Description.String, company.Employees, company.Registered, company.Type, company.ID)

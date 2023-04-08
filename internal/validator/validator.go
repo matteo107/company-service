@@ -1,5 +1,8 @@
+// Package validator provides a way to validate form data.
 package validator
 
+// Validator is a struct that holds the errors map.
+// The errors map is a map of field names to error messages.
 type Validator struct {
 	Errors map[string]string
 }
@@ -22,6 +25,8 @@ func (v *Validator) IsValid() bool {
 	return len(v.Errors) == 0
 }
 
+// Check adds an error message to the errors map if the provided
+// boolean value is false.
 func (v *Validator) Check(b bool, field, message string) {
 	if !b {
 		v.AddError(field, message)
