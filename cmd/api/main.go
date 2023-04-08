@@ -148,7 +148,7 @@ func (app *application) processEvents() {
 			}
 			message := fmt.Sprintf("company with id:[%s] %s at %s", event.ID, t, event.TimeStamp.Format(time.RFC3339))
 			app.logger.Println(message)
-			record := &kgo.Record{Topic: "companyservice", Value: []byte(message)}
+			record := &kgo.Record{Value: []byte(message)}
 			ctx := context.Background()
 			app.KafkaClient.Produce(ctx, record, func(_ *kgo.Record, err error) {
 				if err != nil {
@@ -164,7 +164,7 @@ func initKafkaClient() *kgo.Client {
 	seeds := []string{"kafka:9092"}
 	cl, err := kgo.NewClient(
 		kgo.SeedBrokers(seeds...),
-		kgo.ConsumeTopics("companyservice"),
+		kgo.DefaultProduceTopic("companyserver"),
 	)
 	if err != nil {
 		panic(err)
