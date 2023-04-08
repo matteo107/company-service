@@ -9,8 +9,10 @@ import (
 	"net/http"
 )
 
+// envelope is a generic envelope for API responses.
 type envelope map[string]interface{}
 
+// writeJSON is a helper that writes JSON data to the response stream.
 func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
 	js, err := json.Marshal(data)
 	if err != nil {
@@ -35,6 +37,7 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 	return nil
 }
 
+// readJSON is a helper that reads JSON data from the request stream.
 func (app *application) readJSON(r *http.Request, dst interface{}) error {
 	dec := json.NewDecoder(r.Body)
 	dec.DisallowUnknownFields()
@@ -44,6 +47,8 @@ func (app *application) readJSON(r *http.Request, dst interface{}) error {
 	}
 	return nil
 }
+
+// readIDParam is a helper that reads the id parameter from the request URL.
 func (app *application) readIDParam(r *http.Request) (uuid.UUID, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 	id, err := uuid.Parse(params.ByName("id"))

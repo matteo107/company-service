@@ -2,6 +2,7 @@ package main
 
 import "net/http"
 
+// errorResponse is a helper which writes an error response to the client.
 func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, message interface{}) {
 	env := envelope{"error": message}
 	err := app.writeJSON(w, status, env, nil)
@@ -9,6 +10,8 @@ func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, st
 		w.WriteHeader(500)
 	}
 }
+
+// below different error responses func are defined depending on the error type
 
 func (app *application) serverErrorResponse(w http.ResponseWriter, r *http.Request, err error) {
 	message := "the server encountered a problem and could not process your request"

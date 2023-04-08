@@ -2,6 +2,8 @@ package main
 
 import "net/http"
 
+// healthcheckHandler is a simple HTTP handler function which writes response containing
+// the current status of the application.
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
 		"status":      "available",

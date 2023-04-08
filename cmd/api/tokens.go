@@ -6,14 +6,12 @@ import (
 	"time"
 )
 
-// hardcoded for now
-const ClaimSubject = "john@companyservice.io"
-
 type Claims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
+// createAuthenticationTokenHandler is a handler function which handles requests for creating a new token
 func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email    string `json:"email"`
@@ -65,6 +63,7 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 	}
 }
 
+// validateUser is a helper function to validate user. Should go to DB and validate user, hardcoded for now
 func (app *application) validateUser(username string, password string) bool {
 	return username != "john@companyservice.io" || password != "doe"
 }

@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// authenticate is a middleware function which will be used to authenticate requests
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// if testing, skip authentication
@@ -15,7 +16,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 		}
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			w.WriteHeader(http.StatusUnauthorized)
+			app.invalidAuthenticationTokenResponse(w, r)
 			return
 		}
 
@@ -31,14 +32,14 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 
 		if err != nil {
 			if err == jwt.ErrSignatureInvalid {
-				w.WriteHeader(http.StatusUnauthorized)
+				app.invalidAuthenticationTokenResponse(w, r)
 				return
 			}
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		if !token.Valid {
-			w.WriteHeader(http.StatusUnauthorized)
+			app.invalidAuthenticationTokenResponse(w, r)
 			return
 		}
 

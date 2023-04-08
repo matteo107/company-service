@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+// TestGetCompany tests the getCompanyHandler function.
 func TestGetCompany(t *testing.T) {
 	app := newTestApplication(t)
 	ts := httptest.NewServer(app.routes())
@@ -45,6 +46,7 @@ func TestGetCompany(t *testing.T) {
 	}
 }
 
+// TestCreateCompany tests the createCompanyHandler function.
 func TestCreateCompany(t *testing.T) {
 	app := newTestApplication(t)
 	ts := httptest.NewServer(app.routes())
@@ -91,6 +93,7 @@ func TestCreateCompany(t *testing.T) {
 	}
 }
 
+// TestDeleteCompany tests the deleteCompanyHandler function.
 func TestDeleteCompany(t *testing.T) {
 	app := newTestApplication(t)
 	ts := httptest.NewServer(app.routes())
@@ -132,6 +135,7 @@ func TestDeleteCompany(t *testing.T) {
 	}
 }
 
+// TestUpdateCompany tests the updateCompanyHandler function.
 func TestUpdateCompany(t *testing.T) {
 	app := newTestApplication(t)
 	ts := httptest.NewServer(app.routes())

@@ -19,6 +19,7 @@ import (
 
 const version = "1.0.0"
 
+// config holds the application configuration.
 type config struct {
 	port string
 	env  string
@@ -33,6 +34,7 @@ type config struct {
 	}
 }
 
+// application holds the dependencies for HTTP handlers.
 type application struct {
 	config  config
 	logger  *log.Logger
@@ -64,6 +66,7 @@ func main() {
 	}
 	defer db.Close()
 	logger.Printf("database connection pool established")
+	// Initialize a new instance of application containing the dependencies.
 	app := &application{
 		config:      cfg,
 		logger:      logger,
@@ -71,6 +74,7 @@ func main() {
 		eventChan:   make(chan data.EventRecord, 100),
 		KafkaClient: initKafkaClient(),
 	}
+	// Initialize a new HTTP server.
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.port),
 		Handler:      app.routes(),
@@ -81,6 +85,7 @@ func main() {
 	}
 
 	shutdownError := make(chan error)
+	// Start a background goroutine that listens for SIGINT and SIGTERM signals
 	go func() {
 		quit := make(chan os.Signal, 1)
 		signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -99,6 +104,7 @@ func main() {
 		"addr": srv.Addr,
 		"env":  cfg.env,
 	})
+	// Start a background goroutine that processes events.
 	go app.processEvents()
 	err = srv.ListenAndServe()
 
@@ -126,6 +132,7 @@ func openDB(cfg config) (*sql.DB, error) {
 	return db, nil
 }
 
+// processEvents is a background goroutine that processes events.
 func (app *application) processEvents() {
 	var t string
 	for {
@@ -143,17 +150,16 @@ func (app *application) processEvents() {
 			app.logger.Println(message)
 			record := &kgo.Record{Topic: "companyservice", Value: []byte(message)}
 			ctx := context.Background()
-
 			app.KafkaClient.Produce(ctx, record, func(_ *kgo.Record, err error) {
 				if err != nil {
 					fmt.Printf("record had a produce error: %v\n", err)
 				}
-
 			})
 		}
 	}
 }
 
+// initKafkaClient initializes a new kafka client.
 func initKafkaClient() *kgo.Client {
 	seeds := []string{"kafka:9092"}
 	cl, err := kgo.NewClient(

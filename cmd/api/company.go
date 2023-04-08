@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// GetCompanyHandler returns a single company based on the ID provided in the request URL.
+// If no matching company is found, this method returns a 404 Not Found response.
 func (app *application) GetCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	id, err := app.readIDParam(request)
 	if err != nil {
@@ -30,6 +32,9 @@ func (app *application) GetCompanyHandler(writer http.ResponseWriter, request *h
 	}
 }
 
+// CreateCompanyHandler creates a new company record in the database based on the data
+// in the POSTed JSON document. If the request body contains invalid data, this method
+// returns an error response, along with a list of validation errors.
 func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	var UUID uuid.UUID
 	var input struct {
@@ -74,6 +79,9 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 	}
 }
 
+// DeleteCompanyHandler deletes a specific company based on the ID provided in the
+// request URL. If no matching company is found, this method returns a 404 Not Found
+// response.
 func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	id, err := app.readIDParam(request)
 	if err != nil {
@@ -101,6 +109,9 @@ func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request
 	}
 }
 
+// UpdateCompanyHandler updates a specific company based on the ID provided in the
+// request URL. If no matching company is found, this method returns a 404 Not Found
+// response.
 func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	id, err := app.readIDParam(request)
 	if err != nil {

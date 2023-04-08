@@ -1,9 +1,14 @@
 package main
 
-import "net/http"
-import "github.com/julienschmidt/httprouter"
-import "github.com/justinas/alice"
+import (
+	"github.com/julienschmidt/httprouter"
+	"github.com/justinas/alice"
+	"net/http"
+)
 
+// This function is used to create a new router instance and register all the application routes.
+// It also registers a middleware function (app.authenticate) that will be called before any of the
+// handlers used for mutating operation are executed.
 func (app *application) routes() http.Handler {
 	router := httprouter.New()
 	standardMiddleware := alice.New()

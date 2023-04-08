@@ -8,6 +8,7 @@ import (
 	"testing"
 )
 
+// newTestApplication returns an instance of application configured for testing
 func newTestApplication(t *testing.T) *application {
 
 	return &application{
