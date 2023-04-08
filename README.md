@@ -2,31 +2,85 @@
 
 This is a simple service that provides a REST API for managing companies.
 
+## Introduction
+
+The service is written in Go and uses the standard library for the REST API.
+
+The database is Postgres. No ORM is used. 
+
+Docker is used for setting up the database and running the service.
+
+JWT is used for authentication.
+
+Kafka is used for events.
+
+Makefile can be used for building and running the service.
+
+.env file is used for setting up the environment variables.
+
 ## API
 
+The below table shows the API endpoints and their corresponding methods.
+
 | Method | URL Pattern     | Action                                          |
-| ------ | --------------- | ----------------------------------------------- |
+|--------| --------------- |-------------------------------------------------|
 | GET    | /v1/healthcheck | Show application health and version information |
 | GET    | /v1/company/:id | Show Company information identified by ID       |
 | PATCH  | /v1/company/:id | Patch Company information                       |
 | DELETE | /v1/company/:id | Delete a Company                                |
 | CREATE | /v1/company     | Create a Company                                |
+| POST   | /v1/tokens/authentication  | Retrieve a JWT Token                 |
+
+
+
 
 ## Database
 
 Postgres is used as the database for this service. 
 Extension uuid-ossp is used for generating UUIDs. 
-https://github.com/golang-migrate/migrate is used for database migrations.
-The migrations scripts are located in the ./migrations folder.
+The migration scripts are located in the /migrations folder.
 
-## Additional points
+## Database Schema
 
-- [ ] On each mutating operation, an event should be produced.
-- [ ] Dockerize the application to be ready for building the production docker image
-- [ ] Use docker for setting up the external services such as the database
-- [ ] REST is suggested, but GRPC is also an option
-- [ ] JWT for authentication
-- [ ] Kafka for events
+Below the database schema is shown.
+
+```mermaid
+erDiagram   
+    COMPANY {
+        uuid id
+        varchar(15) name
+        varchar(3000) description
+        integer employees
+        boolean registered
+        text    type
+    }
+```
+
+## Instructions
+
+Clone the repository
+```bash
+git clone https://github.com/matteo107/company-service.git
+```
+
+Have docker installed and running.
+
+```bash
+make build
+```
+and then
+```bash
+make run
+```
+
+## Requirements implementation
+
+- [x] On each mutating operation, an event should be produced.
+- [x] Dockerize the application to be ready for building the production docker image
+- [x] Use docker for setting up the external services such as the database
+- [x] REST is suggested, but GRPC is also an option
+- [x] JWT for authentication
+- [x] Kafka for events
 - [ ] Integration tests are highly appreciated
-- [ ] Linter
-- [ ] Configuration file
+- [x] Linter
+- [x] Configuration file
