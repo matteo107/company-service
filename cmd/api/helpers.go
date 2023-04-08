@@ -15,7 +15,8 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 	js, err := json.Marshal(data)
 	if err != nil {
 		log.Printf("error decoding response: %v", err)
-		if e, ok := err.(*json.SyntaxError); ok {
+		var e *json.SyntaxError
+		if ok := errors.Is(err, e); ok {
 			log.Printf("syntax error at byte offset %d", e.Offset)
 		}
 		log.Printf("response: %q", data)
@@ -27,7 +28,10 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data interf
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
-	w.Write(js)
+	_, err = w.Write(js)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -40,7 +44,6 @@ func (app *application) readJSON(r *http.Request, dst interface{}) error {
 	}
 	return nil
 }
-
 func (app *application) readIDParam(r *http.Request) (uuid.UUID, error) {
 	params := httprouter.ParamsFromContext(r.Context())
 	id, err := uuid.Parse(params.ByName("id"))
@@ -48,5 +51,4 @@ func (app *application) readIDParam(r *http.Request) (uuid.UUID, error) {
 		return uuid.Nil, errors.New("invalid id parameter")
 	}
 	return id, nil
-
 }

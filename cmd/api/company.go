@@ -91,6 +91,9 @@ func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request
 		return
 	}
 	err = app.writeJSON(writer, http.StatusOK, envelope{"id": id}, nil)
+	if err != nil {
+		app.logger.Println(err)
+	}
 	app.eventChan <- data.EventRecord{
 		ID:        id,
 		Type:      data.CompanyDeleted,

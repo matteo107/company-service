@@ -62,6 +62,9 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 }
 
 func (app *application) contextSetUser(r *http.Request, data string) *http.Request {
-	ctx := context.WithValue(r.Context(), "user", data)
+	user := userContextKey("user")
+	ctx := context.WithValue(r.Context(), user, data)
 	return r.WithContext(ctx)
 }
+
+type userContextKey string

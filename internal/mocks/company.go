@@ -8,7 +8,7 @@ import (
 var mockCompany = &data.Company{
 	ID:          uuid.MustParse("dc152cf7-cc4b-4555-8d4c-1878e5b9262c"),
 	Name:        "Test Company",
-	Description: data.CompanyDescription{"Test Company Description", true},
+	Description: data.CompanyDescription{String: "Test Company Description", Valid: true},
 	Registered:  true,
 	Type:        "Corporate",
 }
