@@ -92,20 +92,6 @@ To create a JWT token, use the following request body:
 {"email": "john@companyservice.io", "password": "doe"}
 ```
 
-
-## Requirements implementation
-
-- [x] On each mutating operation, an event should be produced
-- [x] Dockerize the application to be ready for building the production docker image
-- [x] Use docker for setting up the external services such as the database
-- [x] REST is suggested, but GRPC is also an option
-- [x] JWT for authentication
-- [x] Kafka for events
-- [x] Integration tests are highly appreciated
-- [x] Linter
-- [x] Configuration file
-
-
 ## Integration testing
 
 Integration tests are located in the /internal/data folder. 
