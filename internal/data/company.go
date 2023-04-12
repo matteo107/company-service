@@ -52,8 +52,9 @@ type Company struct {
 	Name        string             `json:"name"`
 	Description CompanyDescription `json:"description"`
 	Employees   int                `json:"employees"`
-	Registered  bool               `json:"registered"`
-	Type        string             `json:"type"`
+	//FIXME: This should be an optional field
+	Registered bool   `json:"registered"`
+	Type       string `json:"type"`
 }
 
 // ValidateCompany runs validation checks on the company data.
@@ -61,6 +62,7 @@ func ValidateCompany(v *validator.Validator, company *Company) {
 	v.Check(company.Name != "", "name", "is required")
 	v.Check(len(company.Description.String) < 3000, "description", "must be less than 3000 characters")
 	v.Check(company.Employees > 0, "employees", "must be greater than zero")
+	//FIXME: This should be an optional field
 	v.Check(company.Registered, "registered", "is required")
 	v.Check(company.Type != "", "type", "is required")
 	v.Check(validateCompanyType(company.Type), "type", "must be one of: Corporations, NonProfit, Cooperative , Sole Proprietorship")
@@ -119,6 +121,7 @@ func (m *CompanyModel) DeleteCompany(id uuid.UUID) error {
 
 // UpdateCompany updates a company record in the database.
 func (m *CompanyModel) UpdateCompany(company *Company) error {
+	//FIXME: Update should only update the fields that are provided in the request and return number of rows updated (0 or 1)
 	query := `UPDATE company SET "name" = $1, "description" = $2, "employees" = $3, "registered" = $4, "type" = $5 WHERE id = $6`
 	_, err := m.DB.Exec(query, company.Name, company.Description.String, company.Employees, company.Registered, company.Type, company.ID)
 	if err != nil {

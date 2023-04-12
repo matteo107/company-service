@@ -36,8 +36,9 @@ type config struct {
 
 // application holds the dependencies for HTTP handlers.
 type application struct {
-	config  config
-	logger  *log.Logger
+	config config
+	logger *log.Logger
+	//FIXME: extract this interface
 	company interface {
 		GetCompany(id uuid.UUID) (*data.Company, error)
 		CreateCompany(company *data.Company) (uuid.UUID, error)
@@ -53,7 +54,7 @@ func main() {
 	flag.StringVar(&cfg.port, "port", os.Getenv("CMPSRV_PORT"), "API server port")
 	flag.StringVar(&cfg.env, "env", os.Getenv("CMPSRV_ENV"), "Environment (development|testing|production)")
 	flag.StringVar(&cfg.db.dsn, "db-dsn", os.Getenv("DB_DSN"), "PostgreSQL DSN")
-
+	// FIXME: these should be configurable
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
@@ -105,6 +106,7 @@ func main() {
 		"env":  cfg.env,
 	})
 	// Start a background goroutine that processes events.
+	// FIXME: close all goroutines and channels properly on shutdown. Use WaitGroup.
 	go app.processEvents()
 	err = srv.ListenAndServe()
 
@@ -148,6 +150,7 @@ func (app *application) processEvents() {
 			}
 			message := fmt.Sprintf("company with id:[%s] %s at %s", event.ID, t, event.TimeStamp.Format(time.RFC3339))
 			app.logger.Println(message)
+			// FIXME: make this JSON message
 			record := &kgo.Record{Value: []byte(message)}
 			ctx := context.Background()
 			app.KafkaClient.Produce(ctx, record, func(_ *kgo.Record, err error) {
@@ -161,12 +164,15 @@ func (app *application) processEvents() {
 
 // initKafkaClient initializes a new kafka client.
 func initKafkaClient() *kgo.Client {
+	// FIXME: make this configurable
 	seeds := []string{"kafka:9092"}
 	cl, err := kgo.NewClient(
 		kgo.SeedBrokers(seeds...),
+		//FIXME: make this configurable
 		kgo.DefaultProduceTopic("companyserver"),
 	)
 	if err != nil {
+		//FIXME: handle this error properly
 		panic(err)
 	}
 	return cl

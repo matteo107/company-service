@@ -13,6 +13,7 @@ import (
 func (app *application) GetCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	id, err := app.readIDParam(request)
 	if err != nil {
+		//FIXME: This is a bad request, not a server error
 		app.serverErrorResponse(writer, request, err)
 		return
 	}
@@ -85,6 +86,7 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	id, err := app.readIDParam(request)
 	if err != nil {
+		//FIXME: This is a bad request, not a server error
 		app.serverErrorResponse(writer, request, err)
 		return
 	}
@@ -115,10 +117,11 @@ func (app *application) DeleteCompanyHandler(writer http.ResponseWriter, request
 func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request *http.Request) {
 	id, err := app.readIDParam(request)
 	if err != nil {
+		//FIXME: This is a bad request, not a server error
 		app.serverErrorResponse(writer, request, err)
 		return
 	}
-
+	//FIXME: Remove the GetCompany call and just use the update with possibly empty fields in struct below
 	company, err := app.company.GetCompany(id)
 	if err != nil {
 		switch err {
