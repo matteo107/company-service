@@ -42,7 +42,7 @@ func (app *application) CreateCompanyHandler(writer http.ResponseWriter, request
 		Name        string                  `json:"name"`
 		Description data.CompanyDescription `json:"description"`
 		Employees   int                     `json:"employees"`
-		Registered  bool                    `json:"registered"`
+		Registered  *bool                   `json:"registered"`
 		Type        string                  `json:"type"`
 	}
 	err := app.readJSON(request, &input)
@@ -121,6 +121,7 @@ func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request
 		app.serverErrorResponse(writer, request, err)
 		return
 	}
+
 	//FIXME: Remove the GetCompany call and just use the update with possibly empty fields in struct below
 	company, err := app.company.GetCompany(id)
 	if err != nil {
@@ -155,7 +156,7 @@ func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request
 		company.Employees = *input.Employees
 	}
 	if input.Registered != nil {
-		company.Registered = *input.Registered
+		company.Registered = input.Registered
 	}
 	if input.Type != nil {
 		company.Type = *input.Type

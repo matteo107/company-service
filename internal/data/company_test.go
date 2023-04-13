@@ -1,6 +1,3 @@
-//go:build integration
-// +build integration
-
 package data
 
 import (
@@ -28,7 +25,7 @@ func TestCompanyModelGet(t *testing.T) {
 				Name:        "Company One",
 				Description: CompanyDescription{String: "Description for company one", Valid: true},
 				Employees:   100,
-				Registered:  true,
+				Registered:  boolPtr(true),
 				Type:        "Corporations",
 			},
 			wantError: nil,
@@ -65,48 +62,74 @@ func TestCompanyModelUpdate(t *testing.T) {
 		t.Skip("postgres: skipping integration test")
 	}
 	tests := []struct {
-		name        string
-		companyID   uuid.UUID
-		wantCompany *Company
-		wantError   error
+		name          string
+		companyID     uuid.UUID
+		updateCompany *Company
+		wantCompany   *Company
+		wantError     error
 	}{
 		{
 			name:      "Update Company",
 			companyID: uuid.MustParse("f1203d76-0491-47fe-9640-0aeda76ad3f6"),
+			updateCompany: &Company{
+				ID:          uuid.MustParse("f1203d76-0491-47fe-9640-0aeda76ad3f6"),
+				Name:        "Company One",
+				Description: CompanyDescription{String: "Description for company one", Valid: true},
+				Employees:   2,
+				Registered:  boolPtr(true),
+				Type:        "Corporations",
+			},
 			wantCompany: &Company{
 				ID:          uuid.MustParse("f1203d76-0491-47fe-9640-0aeda76ad3f6"),
 				Name:        "Company One",
 				Description: CompanyDescription{String: "Description for company one", Valid: true},
 				Employees:   2,
-				Registered:  true,
+				Registered:  boolPtr(true),
 				Type:        "Corporations",
 			},
 			wantError: nil,
 		},
 		{
-			name:        "Non-existent ID",
-			companyID:   uuid.MustParse("e2d3253c-3e65-4516-9318-d013fde56dca"),
+			name:      "Non-existent ID",
+			companyID: uuid.MustParse("e2d3253c-3e65-4516-9318-d013fde56dca"),
+			updateCompany: &Company{
+				ID:          uuid.MustParse("e2d3253c-3e65-4516-9318-d013fde56dca"),
+				Description: CompanyDescription{String: "Description for company one", Valid: true},
+			},
 			wantCompany: nil,
 			wantError:   ErrRecordNotFound,
 		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-
-			db, teardown := newTestDB(t)
-			defer teardown()
-
-			c := CompanyModel{db}
-			company := &Company{
+		{
+			name:      "Update Company with empty Registered field",
+			companyID: uuid.MustParse("f1203d76-0491-47fe-9640-0aeda76ad3f6"),
+			updateCompany: &Company{
 				ID:          uuid.MustParse("f1203d76-0491-47fe-9640-0aeda76ad3f6"),
 				Name:        "Company One",
 				Description: CompanyDescription{String: "Description for company one", Valid: true},
 				Employees:   2,
-				Registered:  true,
 				Type:        "Corporations",
+			},
+			wantCompany: &Company{
+				ID:          uuid.MustParse("f1203d76-0491-47fe-9640-0aeda76ad3f6"),
+				Name:        "Company One",
+				Description: CompanyDescription{String: "Description for company one", Valid: true},
+				Employees:   2,
+				Registered:  boolPtr(true),
+				Type:        "Corporations",
+			},
+			wantError: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db, teardown := newTestDB(t)
+			defer teardown()
+			c := CompanyModel{db}
+			err := c.UpdateCompany(tt.updateCompany)
+			if err != tt.wantError {
+				t.Errorf("want %v; got %s", tt.wantError, err)
 			}
-			err := c.UpdateCompany(company)
-			companyFromDb, err := c.GetCompany(tt.companyID)
+			companyFromDb, err := c.GetCompany(tt.updateCompany.ID)
 			if err != tt.wantError {
 				t.Errorf("want %v; got %s", tt.wantError, err)
 			}
@@ -133,7 +156,7 @@ func TestCompanyModelCreate(t *testing.T) {
 				Name:        "Company Two",
 				Description: CompanyDescription{String: "Description for company one", Valid: true},
 				Employees:   500,
-				Registered:  true,
+				Registered:  boolPtr(true),
 				Type:        "NonProfit",
 			},
 			wantError: nil,

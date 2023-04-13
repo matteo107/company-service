@@ -33,3 +33,6 @@ func newTestDB(t *testing.T) (*sql.DB, func()) {
 		db.Close()
 	}
 }
+func boolPtr(b bool) *bool {
+	return &b
+}

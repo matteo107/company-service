@@ -53,7 +53,7 @@ type Company struct {
 	Description CompanyDescription `json:"description"`
 	Employees   int                `json:"employees"`
 	//FIXME: This should be an optional field
-	Registered bool   `json:"registered"`
+	Registered *bool  `json:"registered"`
 	Type       string `json:"type"`
 }
 
@@ -63,7 +63,7 @@ func ValidateCompany(v *validator.Validator, company *Company) {
 	v.Check(len(company.Description.String) < 3000, "description", "must be less than 3000 characters")
 	v.Check(company.Employees > 0, "employees", "must be greater than zero")
 	//FIXME: This should be an optional field
-	v.Check(company.Registered, "registered", "is required")
+	v.Check(company.Registered != nil, "registered", "is required")
 	v.Check(company.Type != "", "type", "is required")
 	v.Check(validateCompanyType(company.Type), "type", "must be one of: Corporations, NonProfit, Cooperative , Sole Proprietorship")
 }
@@ -121,11 +121,18 @@ func (m *CompanyModel) DeleteCompany(id uuid.UUID) error {
 
 // UpdateCompany updates a company record in the database.
 func (m *CompanyModel) UpdateCompany(company *Company) error {
-	//FIXME: Update should only update the fields that are provided in the request and return number of rows updated (0 or 1)
-	query := `UPDATE company SET "name" = $1, "description" = $2, "employees" = $3, "registered" = $4, "type" = $5 WHERE id = $6`
-	_, err := m.DB.Exec(query, company.Name, company.Description.String, company.Employees, company.Registered, company.Type, company.ID)
+	query := `UPDATE company SET name = COALESCE($1,name), description = COALESCE($2,description), employees = COALESCE($3,employees), registered = COALESCE($4,registered), type = COALESCE($5,type) WHERE id = $6`
+	result, err := m.DB.Exec(query, company.Name, company.Description.String, company.Employees, company.Registered, company.Type, company.ID)
 	if err != nil {
 		return err
 	}
+	i, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if i == 0 {
+		return ErrRecordNotFound
+	}
+
 	return nil
 }
