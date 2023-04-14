@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"log"
@@ -36,15 +35,9 @@ type config struct {
 
 // application holds the dependencies for HTTP handlers.
 type application struct {
-	config config
-	logger *log.Logger
-	//FIXME: extract this interface
-	company interface {
-		GetCompany(id uuid.UUID) (*data.Company, error)
-		CreateCompany(company *data.Company) (uuid.UUID, error)
-		DeleteCompany(id uuid.UUID) error
-		UpdateCompany(company *data.Company) error
-	}
+	config      config
+	logger      *log.Logger
+	company     CompanyRepository
 	eventChan   chan data.EventRecord
 	KafkaClient *kgo.Client
 }

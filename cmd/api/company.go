@@ -181,3 +181,10 @@ func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request
 		TimeStamp: time.Now().UTC(),
 	}
 }
+
+type CompanyRepository interface {
+	GetCompany(id uuid.UUID) (*data.Company, error)
+	CreateCompany(company *data.Company) (uuid.UUID, error)
+	DeleteCompany(id uuid.UUID) error
+	UpdateCompany(company *data.Company) error
+}
