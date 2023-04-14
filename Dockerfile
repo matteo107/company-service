@@ -1,9 +1,15 @@
-FROM golang:1.19.0
+FROM golang:1.19.0 as builder
 
 WORKDIR /usr/src/app
 
 COPY . .
 RUN go mod tidy
-RUN go build -o=/usr/local/bin/companyservice ./cmd/api
+RUN env GOOS=linux GARCH=amd64 CGO_ENABLED=0 go build -o=/companyservice ./cmd/api
 
-# FIXME: multi-stage build and copy binary from previous stage
+FROM alpine:latest as production
+
+WORKDIR /
+
+COPY --from=builder /companyservice /companyservice
+
+ENTRYPOINT ["./companyservice" ]

@@ -9,8 +9,6 @@ services:
       - "4000:4000"
     volumes:
       - .:/usr/src/app
-    # FIXME: This is a temporary workaround
-    command: ["/bin/bash", "-c", "/usr/local/bin/companyservice"]
     depends_on:
       - db
       - kafka
