@@ -120,8 +120,7 @@ func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request
 		app.badRequestResponse(writer, request, err)
 		return
 	}
-
-	//FIXME: Remove the GetCompany call and just use the update with possibly empty fields in struct below
+	app.lock.Lock()
 	company, err := app.company.GetCompany(id)
 	if err != nil {
 		switch err {
@@ -171,6 +170,8 @@ func (app *application) UpdateCompanyHandler(writer http.ResponseWriter, request
 		app.serverErrorResponse(writer, request, err)
 		return
 	}
+	app.lock.Unlock()
+
 	err = app.writeJSON(writer, http.StatusOK, envelope{"company": company}, nil)
 	if err != nil {
 		app.serverErrorResponse(writer, request, err)

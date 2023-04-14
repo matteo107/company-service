@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"github.com/twmb/franz-go/pkg/kgo"
 	"log"
@@ -12,6 +13,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
 )
@@ -40,6 +42,8 @@ type application struct {
 	company     CompanyRepository
 	eventChan   chan data.EventRecord
 	KafkaClient *kgo.Client
+	locks       map[uuid.UUID]*sync.Mutex
+	lock        sync.Mutex
 }
 
 func main() {
@@ -67,6 +71,7 @@ func main() {
 		company:     data.NewCompanyModel(db),
 		eventChan:   make(chan data.EventRecord, 100),
 		KafkaClient: initKafkaClient(),
+		lock:        sync.Mutex{},
 	}
 	// Initialize a new HTTP server.
 	srv := &http.Server{
