@@ -72,6 +72,8 @@ DB_PASSWORD=companysrv
 DB_NAME=companysrv
 DB_DSN=postgres://companysrv:companysrv@db:5432/companysrv?sslmode=disable
 JWT_SECRET=eoUeeToh2eianjgvuliJ45oM5xfBldekngei3aeh2aapoi6wEin013gooha60aoe
+KAFKA_BROKERS=kafka:9092
+KAFKA_TOPIC=companyservice
 ```
 
 
