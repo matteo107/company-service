@@ -52,9 +52,8 @@ type Company struct {
 	Name        string             `json:"name"`
 	Description CompanyDescription `json:"description"`
 	Employees   int                `json:"employees"`
-	//FIXME: This should be an optional field
-	Registered *bool  `json:"registered"`
-	Type       string `json:"type"`
+	Registered  *bool              `json:"registered"`
+	Type        string             `json:"type"`
 }
 
 // ValidateCompany runs validation checks on the company data.
@@ -62,7 +61,6 @@ func ValidateCompany(v *validator.Validator, company *Company) {
 	v.Check(company.Name != "", "name", "is required")
 	v.Check(len(company.Description.String) < 3000, "description", "must be less than 3000 characters")
 	v.Check(company.Employees > 0, "employees", "must be greater than zero")
-	//FIXME: This should be an optional field
 	v.Check(company.Registered != nil, "registered", "is required")
 	v.Check(company.Type != "", "type", "is required")
 	v.Check(validateCompanyType(company.Type), "type", "must be one of: Corporations, NonProfit, Cooperative , Sole Proprietorship")
